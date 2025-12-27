@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MiniMarketCRM.Application\MiniMarketCRM.Application.csproj" />
     <ProjectReference Include="..\MiniMarketCRM.DataAccess\MiniMarketCRM.DataAccess.csproj" />
   </ItemGroup>
 
