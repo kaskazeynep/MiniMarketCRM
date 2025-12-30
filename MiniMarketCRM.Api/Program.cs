@@ -20,7 +20,9 @@ namespace MiniMarketCRM.Api
             builder.Services.AddScoped<IKategoriService, KategoriService>();
             builder.Services.AddScoped<IUrunService, UrunService>();
             builder.Services.AddScoped<IMusteriService, MusteriService>();
-
+            builder.Services.AddScoped<ISiparisService, SiparisService>();
+            builder.Services.AddScoped<ISiparisKalemiService, SiparisKalemiService>();
+             
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
