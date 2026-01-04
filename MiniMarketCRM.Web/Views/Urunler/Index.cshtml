@@ -1,0 +1,73 @@
+﻿@model List<MiniMarketCRM.Application.DTO.UrunDTO>
+
+@{
+    int? musteriId = ViewBag.MusteriId as int?;
+}
+
+<h2>Ürünler</h2>
+
+@if (musteriId == null)
+{
+    <div class="alert alert-warning">
+        Önce bir müşteri seçmelisin.
+        <a class="btn btn-sm btn-primary ms-2" asp-controller="Musteriler" asp-action="Select">
+            Müşteri Seç
+        </a>
+    </div>
+    return;
+}
+
+<div class="mb-3 d-flex gap-2">
+    <a class="btn btn-outline-secondary"
+       asp-controller="Musteriler"
+       asp-action="Select">
+        Müşteri Değiştir
+    </a>
+
+    <a class="btn btn-success"
+       asp-controller="Sepet"
+       asp-action="Index"
+       asp-route-musteriId="@musteriId">
+        Sepete Git
+    </a>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Kategori</th>
+            <th>Fiyat</th>
+            <th>Stok</th>
+            <th>Aktif</th>
+            <th style="width:260px;">Sepet</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Ad</td>
+                <td>@u.KategoriAdi</td>
+                <td>@u.Fiyat</td>
+                <td>@u.Stok</td>
+                <td>@(u.AktifMi ? "Evet" : "Hayır")</td>
+                <td>
+                    <form asp-controller="Sepet" asp-action="Ekle" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="musteriId" value="@musteriId" />
+                        <input type="hidden" name="urunId" value="@u.UrunId" />
+
+                        <input type="number" name="adet" value="1" min="1"
+                               class="form-control" style="width:90px;" />
+
+                        <button class="btn btn-sm btn-success" type="submit">
+                            Sepete Ekle
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

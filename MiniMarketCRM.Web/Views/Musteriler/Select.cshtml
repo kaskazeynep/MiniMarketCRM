@@ -1,0 +1,20 @@
+﻿@model List<MiniMarketCRM.Application.DTO.MusteriDTO>
+
+<h2>Müşteri Seç</h2>
+
+<form asp-action="Select" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label">Müşteri</label>
+        <select name="musteriId" class="form-select" required>
+            <option value="">-- Seçiniz --</option>
+            @foreach (var m in Model)
+            {
+                <option value="@m.MusteriId">@m.Ad @m.Soyad (@m.Email)</option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Devam Et</button>
+</form>

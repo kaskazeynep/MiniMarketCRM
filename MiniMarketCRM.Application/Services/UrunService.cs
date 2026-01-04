@@ -21,17 +21,19 @@ namespace MiniMarketCRM.Application.Services
         public async Task<List<UrunDTO>> GetAllAsync()
         {
             return await _db.Urunler
-                .AsNoTracking()
-                .Select(u => new UrunDTO
-                {
-                    UrunId = u.UrunId,
-                    Ad = u.Ad,
-                    KategoriId = u.KategoriId,
-                    Fiyat = u.Fiyat,
-                    Stok = u.Stok,
-                    AktifMi = u.AktifMi
-                })
-                .ToListAsync();
+             .AsNoTracking()
+             .Include(u => u.Kategori)
+             .Select(u => new UrunDTO
+             {
+                 UrunId = u.UrunId,
+                 Ad = u.Ad,
+                 KategoriId = u.KategoriId,
+                 KategoriAdi = u.Kategori.KategoriAdi,
+                 Fiyat = u.Fiyat,
+                 Stok = u.Stok,
+                 AktifMi = u.AktifMi
+             })
+             .ToListAsync();
         }
 
         public async Task<UrunDTO?> GetByIdAsync(int id)

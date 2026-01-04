@@ -12,7 +12,7 @@ using MiniMarketCRM.DataAccess.Context;
 namespace MiniMarketCRM.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251221174624_mg1")]
+    [Migration("20251230204404_mg1")]
     partial class mg1
     {
         /// <inheritdoc />
