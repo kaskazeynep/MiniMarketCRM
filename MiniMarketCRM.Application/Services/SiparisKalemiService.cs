@@ -71,6 +71,8 @@ namespace MiniMarketCRM.Application.Services
                     SatirToplam = dto.Adet * birimFiyat
                 };
                 _db.SiparisKalemleri.Add(mevcut);
+                siparis.SiparisKalemleri.Add(mevcut);
+
             }
 
             urun.Stok -= dto.Adet;

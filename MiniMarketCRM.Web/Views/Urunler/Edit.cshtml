@@ -1,0 +1,41 @@
+﻿@model MiniMarketCRM.Application.DTO.UrunUpsertDTO
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+<h2>Ürün Güncelle</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Edit" asp-route-id="@ViewBag.UrunId" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label">Ad</label>
+        <input class="form-control" asp-for="Ad" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Kategori</label>
+        <select class="form-select" asp-for="KategoriId" asp-items="(List<SelectListItem>)ViewBag.Kategoriler"></select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Fiyat</label>
+        <input class="form-control" asp-for="Fiyat" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Stok</label>
+        <input class="form-control" asp-for="Stok" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="AktifMi" />
+        <label class="form-check-label">Aktif</label>
+    </div>
+
+    <button class="btn btn-warning" type="submit">Güncelle</button>
+    <a class="btn btn-secondary" asp-action="Index">Geri</a>
+</form>

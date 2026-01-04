@@ -1,0 +1,99 @@
+﻿@model MiniMarketCRM.Application.DTO.CartDTO
+
+<h2>Sepet</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">Sepet bulunamadı.</div>
+    return;
+}
+
+@{
+    var items = Model.Items ?? new List<MiniMarketCRM.Application.DTO.CartItemDTO>();
+    var sepetBos = !items.Any();
+}
+
+<div class="mb-3 d-flex gap-2">
+    <a class="btn btn-outline-secondary"
+       asp-controller="Urunler"
+       asp-action="Index"
+       asp-route-musteriId="@Model.MusteriId">
+        Ürünlere Geri Dön
+    </a>
+
+    <form method="post" asp-action="Iptal" class="d-inline"
+          onsubmit="return confirm('Sepeti iptal etmek istediğine emin misin?');">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="musteriId" value="@Model.MusteriId" />
+        <button class="btn btn-outline-danger" type="submit">Sepeti İptal Et</button>
+    </form>
+</div>
+
+<div class="mb-3">
+    <strong>MüşteriId:</strong> @Model.MusteriId <br />
+    <strong>SiparişId:</strong> @Model.SiparisId
+</div>
+
+@if (sepetBos)
+{
+    <div class="alert alert-warning">Sepet boş. Checkout yapılamaz.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th style="width:240px;">Adet</th>
+                <th>Birim Fiyat</th>
+                <th>Satır Toplam</th>
+                <th style="width:140px;">İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    <td>@item.UrunAdi</td>
+                    <td>
+                        <form method="post" asp-action="Guncelle" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="musteriId" value="@Model.MusteriId" />
+                            <input type="hidden" name="kalemId" value="@item.SiparisKalemiId" />
+                            <input type="number" name="adet" value="@item.Adet" min="1" class="form-control" style="width:90px;" />
+                            <button class="btn btn-sm btn-primary" type="submit">Güncelle</button>
+                        </form>
+                    </td>
+                    <td>@item.BirimFiyat</td>
+                    <td>@item.SatirToplam</td>
+                    <td>
+                        <form method="post" asp-action="Sil"
+                              onsubmit="return confirm('Bu ürünü sepetten silmek istiyor musun?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="musteriId" value="@Model.MusteriId" />
+                            <input type="hidden" name="kalemId" value="@item.SiparisKalemiId" />
+                            <button class="btn btn-sm btn-danger" type="submit">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h4>Toplam: @Model.ToplamTutar</h4>
+
+<form method="post" asp-action="Checkout">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="musteriId" value="@Model.MusteriId" />
+    <button class="btn btn-success" type="submit" @(sepetBos ? "disabled" : "")>Checkout</button>
+</form>

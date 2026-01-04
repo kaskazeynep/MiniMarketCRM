@@ -11,6 +11,7 @@ namespace MiniMarketCRM.Application.DTO
         public int UrunId { get; set; }
         public string Ad { get; set; } = string.Empty;
         public int KategoriId { get; set; }
+        public string KategoriAdi { get; set; } = string.Empty;
         public decimal Fiyat { get; set; }
         public int Stok { get; set; }
         public bool AktifMi { get; set; } 

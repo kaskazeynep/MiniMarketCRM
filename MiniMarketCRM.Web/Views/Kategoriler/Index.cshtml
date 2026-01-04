@@ -1,0 +1,49 @@
+﻿@model List<MiniMarketCRM.Application.DTO.KategoriDTO>
+
+<h2>Kategoriler</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="mb-3">
+    <a class="btn btn-primary" asp-action="Create">Yeni Kategori</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Kategori Adı</th>
+            <th>Açıklama</th>
+            <th style="width:240px;">İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var k in Model)
+        {
+            <tr>
+                <td>@k.KategoriAdi</td>
+                <td>@k.Aciklama</td>
+                <td>
+                    <a class="btn btn-sm btn-warning"
+                       asp-action="Edit"
+                       asp-route-id="@k.KategoriId">Düzenle</a>
+
+                    <form asp-action="Delete"
+                          asp-route-id="@k.KategoriId"
+                          method="post"
+                          class="d-inline"
+                          onsubmit="return confirm('Silmek istediğine emin misin?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

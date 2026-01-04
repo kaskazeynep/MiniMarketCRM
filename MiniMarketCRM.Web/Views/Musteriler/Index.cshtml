@@ -1,0 +1,70 @@
+﻿@model List<MiniMarketCRM.Application.DTO.MusteriDTO>
+
+<h2>Müşteriler</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="mb-3 d-flex gap-2">
+    <a class="btn btn-primary" asp-action="Create">Yeni Müşteri</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Soyad</th>
+            <th>Email</th>
+            <th style="width:360px;">İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@m.Ad</td>
+                <td>@m.Soyad</td>
+                <td>@m.Email</td>
+
+                <td class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-sm btn-warning"
+                       asp-action="Edit"
+                       asp-route-id="@m.MusteriId">
+                        Düzenle
+                    </a>
+
+                    <form asp-action="Delete"
+                          asp-route-id="@m.MusteriId"
+                          method="post"
+                          class="d-inline"
+                          onsubmit="return confirm('Silmek istediğine emin misin?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                    </form>
+
+                    <!-- AKIŞIN BAŞLANGICI: önce müşteri seç -> ürünlere git -->
+                    <a class="btn btn-sm btn-success"
+                       asp-controller="Urunler"
+                       asp-action="Index"
+                       asp-route-musteriId="@m.MusteriId">
+                        Bu müşteriyle alışverişe başla
+                    </a>
+
+                    <!-- Opsiyonel: direkt sepet -->
+                    <a class="btn btn-sm btn-outline-primary"
+                       asp-controller="Sepet"
+                       asp-action="Index"
+                       asp-route-musteriId="@m.MusteriId">
+                        Sepeti Gör
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
