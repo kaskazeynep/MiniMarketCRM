@@ -6,16 +6,21 @@ namespace MiniMarketCRM.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // MVC
             builder.Services.AddControllersWithViews();
 
+            // HttpContextAccessor (Layout'ta Session/Request Path okumak için)
+            builder.Services.AddHttpContextAccessor();
+
+            // API Client
             builder.Services.AddHttpClient("ApiClient", client =>
             {
                 var baseUrl = builder.Configuration["Api:BaseUrl"];
                 client.BaseAddress = new Uri(baseUrl!);
             });
-            builder.Services.AddDistributedMemoryCache();
 
+            // Session
+            builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromHours(2);
@@ -23,27 +28,29 @@ namespace MiniMarketCRM.Web
                 options.Cookie.IsEssential = true;
             });
 
-
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
+
+            // Static files (wwwroot)
+            app.UseStaticFiles();
+
             app.UseRouting();
+
+            // Session MUST be after routing and before endpoints
             app.UseSession();
+
             app.UseAuthorization();
 
-            app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

@@ -7,24 +7,41 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
+<div class="mb-3">
+    <a class="btn btn-outline-secondary" asp-controller="Musteriler" asp-action="Select"> ← Müşteri Seç’e Dön </a>
+</div>
+
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
     <div class="mb-3">
         <label class="form-label">Ad</label>
-        <input class="form-control" asp-for="Ad" />
+        <input class="form-control" asp-for="Ad" placeholder="Örn: Zeynep" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Soyad</label>
-        <input class="form-control" asp-for="Soyad" />
+        <input class="form-control" asp-for="Soyad" placeholder="Örn: Kaska" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Email</label>
-        <input class="form-control" asp-for="Email" />
+        <input class="form-control" asp-for="Email" type="email" placeholder="ornek@mail.com" />
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" asp-for="Email" type="email" />
+            <span class="text-danger" asp-validation-for="Email"></span>
+        </div>
+
     </div>
 
-    <button class="btn btn-primary" type="submit">Kaydet</button>
-    <a class="btn btn-secondary" asp-action="Index">Geri</a>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+
+        <a class="btn btn-secondary"asp-controller="Musteriler" asp-action="Select"> Vazgeç </a>
+    </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

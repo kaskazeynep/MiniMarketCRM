@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniMarketCRM.Application.DTO;
+using MiniMarketCRM.Web.Infrastructure;
 using System.Net.Http.Json;
 
 namespace MiniMarketCRM.Web.Controllers
 {
     public class SepetController : Controller
     {
-        private const string SessionKey = "SelectedMusteriId";
         private readonly IHttpClientFactory _httpClientFactory;
 
         public SepetController(IHttpClientFactory httpClientFactory)
@@ -14,20 +14,28 @@ namespace MiniMarketCRM.Web.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        private int? GetSelectedMusteriId() => HttpContext.Session.GetInt32(SessionKey);
+        private int? GetSelectedMusteriId() => HttpContext.Session.GetInt32(SessionKeys.SelectedMusteriId);
+
+        private void ClearSelectedMusteri()
+        {
+            HttpContext.Session.Remove(SessionKeys.SelectedMusteriId);
+            HttpContext.Session.Remove(SessionKeys.SelectedMusteriName);
+        }
 
         // GET: /Sepet
         public async Task<IActionResult> Index()
         {
             var musteriId = GetSelectedMusteriId();
             if (musteriId == null)
+            {
+                TempData["Error"] = "Sepeti görmek için önce müşteri seçmelisin.";
                 return RedirectToAction("Select", "Musteriler");
+            }
 
             var client = _httpClientFactory.CreateClient("ApiClient");
-
             var cart = await client.GetFromJsonAsync<CartDTO>($"api/cart/{musteriId.Value}");
 
-            return View(cart);
+            return View(cart); 
         }
 
         // POST: /Sepet/Ekle
@@ -38,14 +46,14 @@ namespace MiniMarketCRM.Web.Controllers
             var musteriId = GetSelectedMusteriId();
             if (musteriId == null)
             {
-                TempData["Error"] = "Önce müşteri seçmelisin.";
+                TempData["Error"] = "Sepete eklemek için önce müşteri seçmelisin.";
                 return RedirectToAction("Select", "Musteriler");
             }
 
             if (urunId <= 0 || adet <= 0)
             {
                 TempData["Error"] = "Geçersiz ürün/adet.";
-                return RedirectToAction("Index", "Urunler", new { musteriId = musteriId.Value });
+                return RedirectToAction("Index", "Urunler");
             }
 
             var client = _httpClientFactory.CreateClient("ApiClient");
@@ -60,7 +68,7 @@ namespace MiniMarketCRM.Web.Controllers
             else
                 TempData["Success"] = "Sepete eklendi ✅";
 
-            return RedirectToAction("Index", "Urunler", new { musteriId = musteriId.Value });
+            return RedirectToAction("Index", "Urunler");
         }
 
         // POST: /Sepet/Guncelle
@@ -120,17 +128,23 @@ namespace MiniMarketCRM.Web.Controllers
         public async Task<IActionResult> Checkout()
         {
             var musteriId = GetSelectedMusteriId();
-            if (musteriId == null) return RedirectToAction("Select", "Musteriler");
+            if (musteriId == null)
+            {
+                TempData["Error"] = "Önce müşteri seçmelisin.";
+                return RedirectToAction("Select", "Musteriler");
+            }
 
             var client = _httpClientFactory.CreateClient("ApiClient");
-
             var response = await client.PostAsync($"api/cart/{musteriId.Value}/checkout", null);
 
             if (response.IsSuccessStatusCode)
+            {
                 TempData["Success"] = "Checkout tamamlandı ✅";
-            else
-                TempData["Error"] = await response.Content.ReadAsStringAsync();
+                ClearSelectedMusteri(); // müşteri sıfırla
+                return RedirectToAction("Index", "Home");
+            }
 
+            TempData["Error"] = await response.Content.ReadAsStringAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -140,20 +154,27 @@ namespace MiniMarketCRM.Web.Controllers
         public async Task<IActionResult> Iptal()
         {
             var musteriId = GetSelectedMusteriId();
-            if (musteriId == null) return RedirectToAction("Select", "Musteriler");
+            if (musteriId == null)
+            {
+                TempData["Error"] = "Önce müşteri seçmelisin.";
+                return RedirectToAction("Select", "Musteriler");
+            }
 
             var client = _httpClientFactory.CreateClient("ApiClient");
 
-            var response = await client.PostAsync($"api/cart/{musteriId.Value}/cancel", null);
+            // API: POST /api/cart/{musteriId}/cancel
+            var response = await client.PostAsync($"api/cart/{musteriId.Value}/cancel", content: null);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "Sipariş iptal edildi ✅";
-                return RedirectToAction("Index", "Urunler", new { musteriId = musteriId.Value });
+                ClearSelectedMusteri(); // seçili müşteriyi sıfırla
+                return RedirectToAction("Index", "Home");
             }
 
             TempData["Error"] = await response.Content.ReadAsStringAsync();
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

@@ -1,57 +1,131 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MiniMarketCRM.Web</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - MiniMarketCRM</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MiniMarketCRM.Web.styles.css" asp-append-version="true" />
 </head>
+
 <body>
+    @using Microsoft.AspNetCore.Http
+    @using MiniMarketCRM.Web.Infrastructure
+    @inject IHttpContextAccessor HttpContextAccessor
+
+    @{
+        var session = HttpContextAccessor.HttpContext?.Session;
+
+        var selectedMusteriId = session?.GetInt32(SessionKeys.SelectedMusteriId);
+        var selectedMusteriName = session?.GetString(SessionKeys.SelectedMusteriName);
+
+        var path = (HttpContextAccessor.HttpContext?.Request?.Path.Value ?? "").ToLowerInvariant();
+
+        string Active(string startsWith) => path.StartsWith(startsWith.ToLowerInvariant()) ? "active" : "";
+        bool HasSelected() => selectedMusteriId is not null;
+
+        // Badge text
+        var musteriText = HasSelected()
+        ? (!string.IsNullOrWhiteSpace(selectedMusteriName)
+        ? $"{selectedMusteriName} (#{selectedMusteriId})"
+        : $"Seçili Müşteri: #{selectedMusteriId}")
+        : "Müşteri seçilmedi";
+    }
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MiniMarketCRM.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                    🥬 <span class="fw-semibold">MiniMarketCRM</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNav"
+                        aria-controls="topNav" aria-expanded="false" aria-label="Menü">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Kategoriler" asp-action="Index">Kategoriler</a>
-                        </li>
-                        <li class="nav-item">
-							<a class="nav-link text-dark" asp-controller="Musteriler" asp-action="Index">Müşteriler</a>
-                        <li>
-                            <li class="nav-item">
-							<a class="nav-link text-dark" asp-controller="Urunler" asp-action="Index">Ürünler</a>
-						<li>
 
+                <div class="collapse navbar-collapse" id="topNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+                        <li class="nav-item">
+                            <a class="nav-link @Active("/musteriler/select")"
+                               asp-controller="Musteriler" asp-action="Select">
+                                Müşteriler
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @Active("/urunler")"
+                               asp-controller="Urunler" asp-action="Index">
+                                Ürünler
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @Active("/sepet")"
+                               asp-controller="Sepet" asp-action="Index">
+                                Sepet
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @Active("/kategoriler")"
+                               asp-controller="Kategoriler" asp-action="Index">
+                                Kategoriler
+                            </a>
+                        </li>
                     </ul>
+
+                    <div class="d-flex align-items-center gap-2">
+                        @if (HasSelected())
+                        {
+                            <span class="badge rounded-pill bg-light text-success px-3 py-2">
+                                @musteriText
+                            </span>
+
+                            <a class="btn btn-outline-light btn-sm rounded-pill px-3"
+                               asp-controller="Musteriler" asp-action="Select">
+                                Değiştir
+                            </a>
+
+                            <form asp-controller="Musteriler" asp-action="ClearSelection" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-light btn-sm rounded-pill px-3"
+                                        onclick="return confirm('Müşteri seçimini temizlemek istiyor musun?');">
+                                    Temizle
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                                @musteriText
+                            </span>
+
+                            <a class="btn btn-light btn-sm rounded-pill px-3"
+                               asp-controller="Musteriler" asp-action="Select">
+                                Hızlı Başlat
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="py-4">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - MiniMarketCRM.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="container py-3 small">
+            &copy; @DateTime.Now.Year - MiniMarketCRM - Market Personel Paneli
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

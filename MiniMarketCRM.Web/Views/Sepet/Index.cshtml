@@ -23,12 +23,7 @@
 }
 
 <div class="mb-3 d-flex gap-2">
-    <a class="btn btn-outline-secondary"
-       asp-controller="Urunler"
-       asp-action="Index"
-       asp-route-musteriId="@Model.MusteriId">
-        Ürünlere Geri Dön
-    </a>
+    <a class="btn btn-outline-secondary" asp-controller="Urunler" asp-action="Index" asp-route-musteriId="@Model.MusteriId"> Ürünlere Geri Dön </a>
 
     <form method="post" asp-action="Iptal" class="d-inline"
           onsubmit="return confirm('Sepeti iptal etmek istediğine emin misin?');">

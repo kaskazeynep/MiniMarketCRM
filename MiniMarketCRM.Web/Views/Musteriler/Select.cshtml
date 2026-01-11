@@ -2,6 +2,11 @@
 
 <h2>Müşteri Seç</h2>
 
+<div class="mb-3 d-flex gap-2">
+    <a class="btn btn-outline-secondary" asp-controller="Musteriler" asp-action="Index"> Müşteri Listesi</a>
+    <a class="btn btn-success" asp-controller="Musteriler" asp-action="Create"> + Yeni Müşteri Ekle </a>
+</div>
+
 <form asp-action="Select" method="post">
     @Html.AntiForgeryToken()
 

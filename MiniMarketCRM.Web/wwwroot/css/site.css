@@ -29,3 +29,33 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+:root {
+    --brand: #0f766e; /* teal */
+    --brand-2: #115e59;
+    --brand-soft: #e7f6f4;
+    --ink: #0f172a;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: .3px;
+}
+
+.navbar-app {
+    background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+    .navbar-app .nav-link, .navbar-app .navbar-brand {
+        color: #fff !important;
+    }
+
+        .navbar-app .nav-link.active {
+            background: rgba(255,255,255,.14);
+            border-radius: 999px;
+        }
+
+.badge-soft {
+    background: var(--brand-soft);
+    color: var(--brand-2);
+    border: 1px solid rgba(15,118,110,.25);
+}

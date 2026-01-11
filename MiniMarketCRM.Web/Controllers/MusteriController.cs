@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniMarketCRM.Application.DTO;
 using System.Net.Http.Json;
+using MiniMarketCRM.Web.Infrastructure;
+
 
 namespace MiniMarketCRM.Web.Controllers
 {
@@ -41,6 +43,7 @@ namespace MiniMarketCRM.Web.Controllers
         }
 
 
+        // GET: /Musteriler/Select
         public async Task<IActionResult> Select()
         {
             var client = _httpClientFactory.CreateClient("ApiClient");
@@ -51,14 +54,43 @@ namespace MiniMarketCRM.Web.Controllers
             return View(list);
         }
 
-        
+
+        // POST: /Musteriler/Select
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Select(int musteriId)
+        public async Task<IActionResult> Select(int musteriId)
         {
-            HttpContext.Session.SetInt32("SelectedMusteriId", musteriId);
-            TempData["Success"] = $"Müşteri seçildi ✅ (ID: {musteriId})";
-            return RedirectToAction("Index", "Urunler", new { musteriId });
+            if (musteriId <= 0)
+            {
+                TempData["Error"] = "Lütfen müşteri seç.";
+                return RedirectToAction(nameof(Select));
+            }
+
+            var client = _httpClientFactory.CreateClient("ApiClient");
+
+            var musteri = await client.GetFromJsonAsync<MusteriDTO>($"api/musteriler/{musteriId}");
+            if (musteri == null)
+            {
+                TempData["Error"] = "Müşteri bulunamadı.";
+                return RedirectToAction(nameof(Select));
+            }
+
+            HttpContext.Session.SetInt32(SessionKeys.SelectedMusteriId, musteri.MusteriId);
+            HttpContext.Session.SetString(SessionKeys.SelectedMusteriName, $"{musteri.Ad} {musteri.Soyad}");
+
+            TempData["Success"] = $"Seçili müşteri: {musteri.Ad} {musteri.Soyad} ✅";
+            return RedirectToAction("Index", "Urunler");
+        }
+
+        // (opsiyonel) 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ClearSelection()
+        {
+            HttpContext.Session.Remove(SessionKeys.SelectedMusteriId);
+            HttpContext.Session.Remove(SessionKeys.SelectedMusteriName);
+            TempData["Success"] = "Müşteri seçimi temizlendi ✅";
+            return RedirectToAction(nameof(Select));
         }
 
         // CREATE (GET)
@@ -84,8 +116,11 @@ namespace MiniMarketCRM.Web.Controllers
             }
 
             TempData["Success"] = "Müşteri eklendi ✅";
-            return RedirectToAction(nameof(Index));
+
+            // müşteri eklendikten sonra müşteri seç ekranına dön
+            return RedirectToAction("Select");
         }
+
 
         // EDIT (GET)
         public async Task<IActionResult> Edit(int id)

@@ -1,8 +1,131 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model MiniMarketCRM.Application.DTO.DashboardSummaryDTO
+
+@{
+    ViewData["Title"] = "Market Paneli";
+    var selectedMusteriId = Model.SelectedMusteriId;
+    var aktifSepetText = selectedMusteriId is null
+        ? "Müşteri seçilince aktif sepet durumu görünür"
+        : $"Seçili müşteri: #{selectedMusteriId}";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+
+    <!-- Hero -->
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-7">
+            <div class="p-4 p-lg-5 bg-light border rounded-4 h-100 shadow-sm">
+                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <div>
+                        <h1 class="display-6 fw-bold mb-2">Neynoca Pazar</h1>
+                        <p class="text-muted mb-0">
+                            Çalışan paneli — hızlı satış, sepet yönetimi, stok ve ürün kontrolü.
+                        </p>
+                    </div>
+                    <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3 py-2">
+                        Kasiyer Modu
+                    </span>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a class="btn btn-success w-100 py-3 rounded-4 shadow-sm"
+                           asp-controller="Musteriler" asp-action="Select">
+                            🧍‍♀️ Müşteri Seç / Başlat
+                            <div class="small opacity-75 mt-1">Satış akışını buradan başlat</div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a class="btn btn-primary w-100 py-3 rounded-4 shadow-sm"
+                           asp-controller="Urunler" asp-action="Index">
+                            🧺 Ürünler
+                            <div class="small opacity-75 mt-1">Manav + market ürünleri</div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a class="btn btn-warning w-100 py-3 rounded-4 shadow-sm"
+                           asp-controller="Sepet" asp-action="Index">
+                            🧾 Sepet
+                            <div class="small opacity-75 mt-1">Güncel sepeti görüntüle</div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a class="btn btn-secondary w-100 py-3 rounded-4 shadow-sm"
+                           asp-controller="Musteriler" asp-action="Index">
+                            👥 Müşteriler
+                            <div class="small opacity-75 mt-1">Listele / ekle / düzenle</div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2 flex-wrap">
+                    <span class="badge bg-light text-dark border">⚡ Hızlı İşlem</span>
+                    <span class="badge bg-light text-dark border">🧮 Toplam & Stok</span>
+                    <span class="badge bg-light text-dark border">🛒 Sepet Mantığı</span>
+                    <span class="badge bg-light text-dark border">✅ Checkout / İptal</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image / Manav vibe -->
+        <div class="col-lg-5">
+            <div class="border rounded-4 overflow-hidden h-100 shadow-sm position-relative">
+                <img class="w-100 h-100" style="object-fit: cover;"
+                     src="~/manavicon.jpg"
+                     alt="Market - Manav Görseli" />
+                <div class="position-absolute bottom-0 start-0 end-0 p-3"
+                     style="background: linear-gradient(180deg, transparent, rgba(0,0,0,.65));">
+                    <div class="text-white">
+                        <div class="fw-semibold">Günün Notu</div>
+                        <div class="small opacity-75">
+                            “Taze ürün, hızlı sepet, mutlu müşteri.”
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick stats (aktif) -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-4">
+            <a class="text-decoration-none text-dark" asp-controller="Sepet" asp-action="Index">
+                <div class="p-3 border rounded-4 bg-white shadow-sm h-100">
+                    <div class="text-muted small">Aktif Sepet</div>
+                    <div class="fs-3 fw-bold">@Model.AktifSepet</div>
+                    <div class="small text-muted">@aktifSepetText</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <div class="p-3 border rounded-4 bg-white shadow-sm h-100">
+                <div class="text-muted small">Bugün Satış</div>
+                <div class="fs-3 fw-bold">@Model.BugunSiparisAdet</div>
+                <div class="small text-muted">
+                    Ciro: <strong>@Model.BugunCiro</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <a class="text-decoration-none text-dark" asp-controller="Urunler" asp-action="Index">
+                <div class="p-3 border rounded-4 bg-white shadow-sm h-100">
+                    <div class="text-muted small">Düşük Stok</div>
+                    <div class="fs-3 fw-bold">@Model.DusukStokAdet</div>
+                    <div class="small text-muted">Stok alarmı (ör: &lt; @Model.DusukStokEsik)</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer hint -->
+    <div class="mt-4 text-muted small">
+        İpucu: Akışın kralı → <span class="fw-semibold">Müşteri Seç</span> → <span class="fw-semibold">Ürünler</span> → <span class="fw-semibold">Sepet</span> → <span class="fw-semibold">Checkout</span>.
+    </div>
+
 </div>
