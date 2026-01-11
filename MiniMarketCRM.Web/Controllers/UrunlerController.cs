@@ -14,22 +14,16 @@ namespace MiniMarketCRM.Web.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        // LIST
-        public async Task<IActionResult> Index(int? musteriId)
+        // LIST (müşteri seçmeden de girilebilir)
+        public async Task<IActionResult> Index()
         {
-            if (!musteriId.HasValue)
-                return RedirectToAction("Select", "Musteriler");
-
-            ViewBag.MusteriId = musteriId.Value;
-
             var client = _httpClientFactory.CreateClient("ApiClient");
-            var urunler = await client.GetFromJsonAsync<List<UrunDTO>>("/api/urunler")
-                          ?? new List<UrunDTO>();
+
+            var urunler = await client.GetFromJsonAsync<List<UrunDTO>>("api/urunler")
+                         ?? new List<UrunDTO>();
 
             return View(urunler);
         }
-
-
 
         // CREATE (GET)
         public async Task<IActionResult> Create()
@@ -75,7 +69,6 @@ namespace MiniMarketCRM.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // UrunDTO -> UrunUpsertDTO map
             var dto = new UrunUpsertDTO
             {
                 Ad = urun.Ad,
@@ -85,7 +78,7 @@ namespace MiniMarketCRM.Web.Controllers
                 AktifMi = urun.AktifMi
             };
 
-            ViewBag.UrunId = urun.UrunId; // Edit view route için
+            ViewBag.UrunId = urun.UrunId;
             await LoadKategorilerToViewBag();
             return View(dto);
         }
@@ -133,7 +126,6 @@ namespace MiniMarketCRM.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // kategorileri dropdown için ViewBag'e koy
         private async Task LoadKategorilerToViewBag()
         {
             var client = _httpClientFactory.CreateClient("ApiClient");

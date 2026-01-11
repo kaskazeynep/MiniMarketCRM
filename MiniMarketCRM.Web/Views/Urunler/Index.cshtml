@@ -1,35 +1,49 @@
 ﻿@model List<MiniMarketCRM.Application.DTO.UrunDTO>
 
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
 @{
-    int? musteriId = ViewBag.MusteriId as int?;
+    var musteriId = HttpContextAccessor.HttpContext?.Session.GetInt32("SelectedMusteriId");
+    var musteriSecili = musteriId != null;
 }
 
 <h2>Ürünler</h2>
 
-@if (musteriId == null)
+@if (TempData["Success"] != null)
 {
-    <div class="alert alert-warning">
-        Önce bir müşteri seçmelisin.
-        <a class="btn btn-sm btn-primary ms-2" asp-controller="Musteriler" asp-action="Select">
-            Müşteri Seç
-        </a>
-    </div>
-    return;
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<div class="mb-3 d-flex gap-2">
+<div class="mb-3 d-flex gap-2 flex-wrap">
     <a class="btn btn-outline-secondary"
        asp-controller="Musteriler"
        asp-action="Select">
-        Müşteri Değiştir
+        @(musteriSecili ? "Müşteri Değiştir" : "Müşteri Seç")
     </a>
 
     <a class="btn btn-success"
        asp-controller="Sepet"
-       asp-action="Index"
-       asp-route-musteriId="@musteriId">
+       asp-action="Index">
         Sepete Git
     </a>
+
+    @if (musteriSecili)
+    {
+        <span class="badge bg-success-subtle text-success border border-success align-self-center px-3 py-2">
+            Seçili MüşteriId: @musteriId
+        </span>
+    }
+    else
+    {
+        <span class="badge bg-warning-subtle text-warning border border-warning align-self-center px-3 py-2">
+            Müşteri seçilmedi — Sepete eklemek için seçmelisin
+        </span>
+    }
 </div>
 
 <table class="table table-striped align-middle">
@@ -40,7 +54,7 @@
             <th>Fiyat</th>
             <th>Stok</th>
             <th>Aktif</th>
-            <th style="width:260px;">Sepet</th>
+            <th style="width:320px;">Sepet</th>
         </tr>
     </thead>
     <tbody>
@@ -53,19 +67,29 @@
                 <td>@u.Stok</td>
                 <td>@(u.AktifMi ? "Evet" : "Hayır")</td>
                 <td>
-                    <form asp-controller="Sepet" asp-action="Ekle" method="post" class="d-flex gap-2">
-                        @Html.AntiForgeryToken()
+                    @if (!musteriSecili)
+                    {
+                        <a class="btn btn-sm btn-outline-danger"
+                           asp-controller="Musteriler"
+                           asp-action="Select">
+                            Sepete eklemek için müşteri seç
+                        </a>
+                    }
+                    else
+                    {
+                        <form asp-controller="Sepet" asp-action="Ekle" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
 
-                        <input type="hidden" name="musteriId" value="@musteriId" />
-                        <input type="hidden" name="urunId" value="@u.UrunId" />
+                            <input type="hidden" name="urunId" value="@u.UrunId" />
 
-                        <input type="number" name="adet" value="1" min="1"
-                               class="form-control" style="width:90px;" />
+                            <input type="number" name="adet" value="1" min="1"
+                                   class="form-control" style="width:90px;" />
 
-                        <button class="btn btn-sm btn-success" type="submit">
-                            Sepete Ekle
-                        </button>
-                    </form>
+                            <button class="btn btn-sm btn-success" type="submit">
+                                Sepete Ekle
+                            </button>
+                        </form>
+                    }
                 </td>
             </tr>
         }
