@@ -48,19 +48,21 @@
                         <button type="submit" class="btn btn-sm btn-danger">Sil</button>
                     </form>
 
-                    <!-- AKIŞIN BAŞLANGICI: önce müşteri seç -> ürünlere git -->
+                    <!-- Session’a yaz → Ürünler'e git -->
                     <a class="btn btn-sm btn-success"
-                       asp-controller="Urunler"
-                       asp-action="Index"
-                       asp-route-musteriId="@m.MusteriId">
+                       asp-controller="Musteriler"
+                       asp-action="QuickSelect"
+                       asp-route-id="@m.MusteriId"
+                       asp-route-returnUrl="/Urunler">
                         Bu müşteriyle alışverişe başla
                     </a>
 
-                    <!-- Opsiyonel: direkt sepet -->
+                    <!-- Session’a yaz → Sepet'e git -->
                     <a class="btn btn-sm btn-outline-primary"
-                       asp-controller="Sepet"
-                       asp-action="Index"
-                       asp-route-musteriId="@m.MusteriId">
+                       asp-controller="Musteriler"
+                       asp-action="QuickSelect"
+                       asp-route-id="@m.MusteriId"
+                       asp-route-returnUrl="/Sepet">
                         Sepeti Gör
                     </a>
                 </td>

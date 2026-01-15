@@ -1,0 +1,138 @@
+﻿@model List<MiniMarketCRM.Application.DTO.SiparisRaporDTO>
+
+@{
+    ViewData["Title"] = "Satış Raporu";
+    var from = ViewBag.From as string;
+    var to = ViewBag.To as string;
+    int? musteriId = ViewBag.MusteriId as int?;
+}
+
+<div class="container py-4">
+
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <div>
+            <h2 class="mb-1">📊 Satış Raporu</h2>
+            <div class="text-muted small">Siparişleri müşteri + ürün kalemleriyle birlikte listeler.</div>
+        </div>
+
+        <a class="btn btn-outline-secondary rounded-pill px-3" asp-controller="Home" asp-action="Index">
+            ← Panele Dön
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Başlangıç</label>
+                    <input type="date" name="from" class="form-control" value="@from" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Bitiş</label>
+                    <input type="date" name="to" class="form-control" value="@to" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">MüşteriId (opsiyonel)</label>
+                    <input type="number" name="musteriId" class="form-control" value="@(musteriId?.ToString() ?? "")" min="1" />
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-success w-100">Filtrele</button>
+                    <a class="btn btn-outline-dark w-100" asp-action="Satis">Sıfırla</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @{
+        var toplamSiparis = Model.Count;
+        var toplamCiro = Model.Sum(x => x.ToplamTutar);
+        var tamamlanan = Model.Count(x => x.Durum.ToString() == "Tamamlandi");
+        var iptal = Model.Count(x => x.Durum.ToString() == "Iptal");
+    }
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="p-3 bg-white border rounded-4 shadow-sm">
+                <div class="text-muted small">Toplam Sipariş</div>
+                <div class="fs-4 fw-bold">@toplamSiparis</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 bg-white border rounded-4 shadow-sm">
+                <div class="text-muted small">Toplam Ciro</div>
+                <div class="fs-4 fw-bold">@toplamCiro</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 bg-white border rounded-4 shadow-sm">
+                <div class="text-muted small">Tamamlanan</div>
+                <div class="fs-4 fw-bold">@tamamlanan</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="p-3 bg-white border rounded-4 shadow-sm">
+                <div class="text-muted small">İptal</div>
+                <div class="fs-4 fw-bold">@iptal</div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning rounded-4">
+            Bu filtreye uygun sipariş bulunamadı.
+        </div>
+        return;
+    }
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>#</th>
+                            <th>Tarih</th>
+                            <th>Müşteri</th>
+                            <th>Durum</th>
+                            <th class="text-end">Toplam</th>
+                            <th style="width:120px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model)
+                        {
+                            var badgeClass = s.Durum.ToString() switch
+                            {
+                                "Tamamlandi" => "bg-success-subtle text-success border border-success",
+                                "Iptal" => "bg-danger-subtle text-danger border border-danger",
+                                _ => "bg-warning-subtle text-warning border border-warning"
+                            };
+
+                            <tr>
+                                <td class="fw-semibold">@s.SiparisId</td>
+                                <td>@s.SiparisTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>
+                                    <div class="fw-semibold">@s.MusteriAdSoyad</div>
+                                    <div class="text-muted small">@s.MusteriEmail</div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2 @badgeClass">@s.Durum</span>
+                                </td>
+                                <td class="text-end fw-semibold">@s.ToplamTutar</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-dark"
+                                       asp-action="SatisDetay"
+                                       asp-route-id="@s.SiparisId">
+                                        Detay
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

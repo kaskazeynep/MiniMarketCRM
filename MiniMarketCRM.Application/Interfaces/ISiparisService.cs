@@ -13,6 +13,9 @@ namespace MiniMarketCRM.Application.Interfaces
         Task<SiparisDTO?> GetByIdAsync(int id);
         Task<SiparisDTO> CreateAsync(SiparisUpsertDTO dto);  
         Task<SiparisDTO?> UpdateAsync(int id, SiparisUpsertDTO dto); 
-        Task<bool> DeleteAsync(int id); 
+        Task<bool> DeleteAsync(int id);
+        Task<List<SiparisRaporDTO>> GetRaporAsync(DateTime? from, DateTime? to);
+        Task<SiparisRaporDTO?> GetRaporDetayAsync(int siparisId);
+
     }
 }

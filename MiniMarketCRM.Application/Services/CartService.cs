@@ -18,28 +18,20 @@ namespace MiniMarketCRM.Application.Services
             _kalemService = kalemService;
         }
 
-        
-    
         public async Task<CartDTO> GetOrCreateAsync(int musteriId)
         {
-            // Müşteri var mı?
             var musteriVarMi = await _db.Musteriler.AnyAsync(m => m.MusteriId == musteriId);
             if (!musteriVarMi) throw new ArgumentException("Geçersiz MusteriId.");
 
             var sepet = await _db.Siparisler
                 .Include(s => s.SiparisKalemleri)
-                .ThenInclude(k => k.Urun)
+                    .ThenInclude(k => k.Urun)
                 .FirstOrDefaultAsync(s => s.MusteriId == musteriId && s.Durum == SiparisDurum.Beklemede);
 
             if (sepet is null)
-            {
-                // Sepet yoksa DB'ye yazma, boş sepet döndür
                 return EmptyCart(musteriId);
-            }
 
             var toplam = sepet.SiparisKalemleri.Sum(k => k.SatirToplam);
-
-            
             if (sepet.ToplamTutar != toplam)
             {
                 sepet.ToplamTutar = toplam;
@@ -53,18 +45,14 @@ namespace MiniMarketCRM.Application.Services
         {
             if (dto.Adet <= 0) throw new ArgumentException("Adet 0 veya negatif olamaz.");
 
-            // ✅ Aktif sepeti bul, yoksa burada oluştur
+            var musteriVarMi = await _db.Musteriler.AnyAsync(m => m.MusteriId == musteriId);
+            if (!musteriVarMi) throw new ArgumentException("Geçersiz MusteriId.");
+
             var sepet = await _db.Siparisler
-                .Include(s => s.SiparisKalemleri)
-                .ThenInclude(k => k.Urun)
                 .FirstOrDefaultAsync(s => s.MusteriId == musteriId && s.Durum == SiparisDurum.Beklemede);
 
             if (sepet is null)
             {
-                // Müşteri var mı?
-                var musteriVarMi = await _db.Musteriler.AnyAsync(m => m.MusteriId == musteriId);
-                if (!musteriVarMi) throw new ArgumentException("Geçersiz MusteriId.");
-
                 sepet = new Siparis
                 {
                     MusteriId = musteriId,
@@ -77,7 +65,6 @@ namespace MiniMarketCRM.Application.Services
                 await _db.SaveChangesAsync();
             }
 
-            // Var/yok mantığı + stok düşme kalem servisinde
             await _kalemService.AddAsync(sepet.SiparisId, new SiparisKalemiUpsertDTO
             {
                 SiparisId = sepet.SiparisId,
@@ -87,7 +74,6 @@ namespace MiniMarketCRM.Application.Services
                 SatirToplam = 0
             });
 
-            // Sepeti (oluşturma yapmadan) geri dön
             return await GetOrCreateAsync(musteriId);
         }
 
@@ -95,7 +81,6 @@ namespace MiniMarketCRM.Application.Services
         {
             if (dto.Adet <= 0) throw new ArgumentException("Adet 0 veya negatif olamaz.");
 
-            // ✅ Update için aktif sepet şart
             var sepet = await _db.Siparisler
                 .FirstOrDefaultAsync(s => s.MusteriId == musteriId && s.Durum == SiparisDurum.Beklemede);
 
@@ -114,7 +99,6 @@ namespace MiniMarketCRM.Application.Services
 
         public async Task<CartDTO> RemoveItemAsync(int musteriId, int kalemId)
         {
-            // ✅ Remove için aktif sepet şart
             var sepet = await _db.Siparisler
                 .FirstOrDefaultAsync(s => s.MusteriId == musteriId && s.Durum == SiparisDurum.Beklemede);
 
@@ -128,6 +112,8 @@ namespace MiniMarketCRM.Application.Services
 
         public async Task<SiparisDTO> CheckoutAsync(int musteriId)
         {
+            await using var tx = await _db.Database.BeginTransactionAsync();
+
             var sepet = await _db.Siparisler
                 .Include(s => s.SiparisKalemleri)
                 .FirstOrDefaultAsync(s => s.MusteriId == musteriId && s.Durum == SiparisDurum.Beklemede);
@@ -139,6 +125,7 @@ namespace MiniMarketCRM.Application.Services
             sepet.Durum = SiparisDurum.Tamamlandi;
 
             await _db.SaveChangesAsync();
+            await tx.CommitAsync();
 
             return new SiparisDTO
             {
@@ -165,12 +152,10 @@ namespace MiniMarketCRM.Application.Services
             // stok iadesi
             foreach (var kalem in sepet.SiparisKalemleri)
             {
-               
-                if (kalem.Urun != null)
+                if (kalem.Urun is not null)
                     kalem.Urun.Stok += kalem.Adet;
             }
 
-            //sipariş bilgilerini güncelle
             sepet.ToplamTutar = sepet.SiparisKalemleri.Sum(k => k.SatirToplam);
             sepet.Durum = SiparisDurum.Iptal;
 
@@ -187,35 +172,28 @@ namespace MiniMarketCRM.Application.Services
             };
         }
 
-
-        private static CartDTO MapCart(Siparis s)
+        private static CartDTO MapCart(Siparis s) => new CartDTO
         {
-            return new CartDTO
+            SiparisId = s.SiparisId,
+            MusteriId = s.MusteriId,
+            ToplamTutar = s.ToplamTutar,
+            Items = s.SiparisKalemleri.Select(k => new CartItemDTO
             {
-                SiparisId = s.SiparisId,
-                MusteriId = s.MusteriId,
-                ToplamTutar = s.ToplamTutar,
-                Items = s.SiparisKalemleri.Select(k => new CartItemDTO
-                {
-                    SiparisKalemiId = k.SiparisKalemiId,
-                    UrunId = k.UrunId,
-                    UrunAdi = k.Urun?.Ad ?? "",
-                    Adet = k.Adet,
-                    BirimFiyat = k.BirimFiyat,
-                    SatirToplam = k.SatirToplam
-                }).ToList()
-            };
-        }
+                SiparisKalemiId = k.SiparisKalemiId,
+                UrunId = k.UrunId,
+                UrunAdi = k.Urun?.Ad ?? "",
+                Adet = k.Adet,
+                BirimFiyat = k.BirimFiyat,
+                SatirToplam = k.SatirToplam
+            }).ToList()
+        };
 
-        private static CartDTO EmptyCart(int musteriId)
+        private static CartDTO EmptyCart(int musteriId) => new CartDTO
         {
-            return new CartDTO
-            {
-                SiparisId = 0,           // aktif sepet yok
-                MusteriId = musteriId,
-                ToplamTutar = 0m,
-                Items = new List<CartItemDTO>()
-            };
-        }
+            SiparisId = 0,
+            MusteriId = musteriId,
+            ToplamTutar = 0m,
+            Items = new List<CartItemDTO>()
+        };
     }
 }

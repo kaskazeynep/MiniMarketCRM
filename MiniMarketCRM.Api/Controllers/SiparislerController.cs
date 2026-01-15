@@ -76,5 +76,21 @@ namespace MiniMarketCRM.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("rapor")]
+        public async Task<ActionResult<List<SiparisRaporDTO>>> Rapor([FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        {
+            var list = await _service.GetRaporAsync(from, to);
+            return Ok(list);
+        }
+
+        // GET /api/siparisler/rapor/5
+        [HttpGet("rapor/{id:int}")]
+        public async Task<ActionResult<SiparisRaporDTO>> RaporDetay(int id)
+        {
+            var item = await _service.GetRaporDetayAsync(id);
+            return item is null ? NotFound() : Ok(item);
+        }
+
     }
 }
