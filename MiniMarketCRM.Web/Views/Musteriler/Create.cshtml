@@ -1,5 +1,9 @@
 ﻿@model MiniMarketCRM.Application.DTO.MusteriUpsertDTO
 
+@{
+    var returnUrl = (string?)ViewBag.ReturnUrl ?? Url.Action("Select", "Musteriler");
+}
+
 <h2>Yeni Müşteri</h2>
 
 @if (TempData["Error"] != null)
@@ -8,37 +12,45 @@
 }
 
 <div class="mb-3">
-    <a class="btn btn-outline-secondary" asp-controller="Musteriler" asp-action="Select"> ← Müşteri Seç’e Dön </a>
+    <a class="btn btn-outline-secondary"
+       asp-controller="Musteriler"
+       asp-action="Select"
+       asp-route-returnUrl="@returnUrl">
+        ← Müşteri Seç’e Dön
+    </a>
 </div>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" class="border rounded-4 p-3 bg-white shadow-sm">
     @Html.AntiForgeryToken()
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
 
     <div class="mb-3">
         <label class="form-label">Ad</label>
         <input class="form-control" asp-for="Ad" placeholder="Örn: Zeynep" />
+        <span class="text-danger" asp-validation-for="Ad"></span>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Soyad</label>
         <input class="form-control" asp-for="Soyad" placeholder="Örn: Kaska" />
+        <span class="text-danger" asp-validation-for="Soyad"></span>
     </div>
 
     <div class="mb-3">
         <label class="form-label">Email</label>
         <input class="form-control" asp-for="Email" type="email" placeholder="ornek@mail.com" />
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input class="form-control" asp-for="Email" type="email" />
-            <span class="text-danger" asp-validation-for="Email"></span>
-        </div>
-
+        <span class="text-danger" asp-validation-for="Email"></span>
     </div>
 
     <div class="d-flex gap-2">
         <button class="btn btn-primary" type="submit">Kaydet</button>
 
-        <a class="btn btn-secondary"asp-controller="Musteriler" asp-action="Select"> Vazgeç </a>
+        <a class="btn btn-secondary"
+           asp-controller="Musteriler"
+           asp-action="Select"
+           asp-route-returnUrl="@returnUrl">
+            Vazgeç
+        </a>
     </div>
 </form>
 

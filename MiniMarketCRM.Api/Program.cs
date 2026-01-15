@@ -23,6 +23,7 @@ namespace MiniMarketCRM.Api
             builder.Services.AddScoped<ISiparisService, SiparisService>();
             builder.Services.AddScoped<ISiparisKalemiService, SiparisKalemiService>();
             builder.Services.AddScoped<ICartService, CartService>();
+            builder.Services.AddScoped<ISiparisRaporService, SiparisRaporService>();
 
 
 

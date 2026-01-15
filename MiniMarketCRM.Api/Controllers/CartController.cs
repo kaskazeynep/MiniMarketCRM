@@ -16,7 +16,7 @@ namespace MiniMarketCRM.Api.Controllers
         }
 
         // GET /api/cart/{musteriId}
-        // "create" yapmıyor; sepet yoksa boş CartDTO döner
+        // sepet yoksa boş CartDTO döner (DB’ye yazmaz)
         [HttpGet("{musteriId:int}")]
         public async Task<IActionResult> Get(int musteriId)
         {
@@ -107,8 +107,8 @@ namespace MiniMarketCRM.Api.Controllers
             }
         }
 
-        
-        // Siparişi DB'de tutar ama Durum = Iptal yapar
+        // POST /api/cart/{musteriId}/cancel
+        // sipariş DB’de kalsın ama Durum=Iptal ve stok iade edilsin
         [HttpPost("{musteriId:int}/cancel")]
         public async Task<IActionResult> Cancel(int musteriId)
         {

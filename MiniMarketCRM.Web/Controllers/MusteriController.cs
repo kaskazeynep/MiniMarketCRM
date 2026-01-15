@@ -3,7 +3,6 @@ using MiniMarketCRM.Application.DTO;
 using System.Net.Http.Json;
 using MiniMarketCRM.Web.Infrastructure;
 
-
 namespace MiniMarketCRM.Web.Controllers
 {
     public class MusterilerController : Controller
@@ -42,10 +41,11 @@ namespace MiniMarketCRM.Web.Controllers
             }
         }
 
-
         // GET: /Musteriler/Select
-        public async Task<IActionResult> Select()
+        public async Task<IActionResult> Select(string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             var client = _httpClientFactory.CreateClient("ApiClient");
 
             var list = await client.GetFromJsonAsync<List<MusteriDTO>>("api/musteriler")
@@ -54,16 +54,15 @@ namespace MiniMarketCRM.Web.Controllers
             return View(list);
         }
 
-
         // POST: /Musteriler/Select
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Select(int musteriId)
+        public async Task<IActionResult> Select(int musteriId, string? returnUrl = null)
         {
             if (musteriId <= 0)
             {
                 TempData["Error"] = "Lütfen müşteri seç.";
-                return RedirectToAction(nameof(Select));
+                return RedirectToAction(nameof(Select), new { returnUrl });
             }
 
             var client = _httpClientFactory.CreateClient("ApiClient");
@@ -72,17 +71,52 @@ namespace MiniMarketCRM.Web.Controllers
             if (musteri == null)
             {
                 TempData["Error"] = "Müşteri bulunamadı.";
-                return RedirectToAction(nameof(Select));
+                return RedirectToAction(nameof(Select), new { returnUrl });
             }
 
             HttpContext.Session.SetInt32(SessionKeys.SelectedMusteriId, musteri.MusteriId);
             HttpContext.Session.SetString(SessionKeys.SelectedMusteriName, $"{musteri.Ad} {musteri.Soyad}");
 
             TempData["Success"] = $"Seçili müşteri: {musteri.Ad} {musteri.Soyad} ✅";
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
             return RedirectToAction("Index", "Urunler");
         }
 
-        // (opsiyonel) 
+        // HIZLI SEÇİM: LISTEDEN TEK TIKLA SESSION’A YAZ
+        // GET: /Musteriler/QuickSelect/5?returnUrl=/Urunler
+        [HttpGet]
+        public async Task<IActionResult> QuickSelect(int id, string? returnUrl = null)
+        {
+            if (id <= 0)
+            {
+                TempData["Error"] = "Geçersiz müşteri.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var client = _httpClientFactory.CreateClient("ApiClient");
+            var musteri = await client.GetFromJsonAsync<MusteriDTO>($"api/musteriler/{id}");
+
+            if (musteri == null)
+            {
+                TempData["Error"] = "Müşteri bulunamadı.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            HttpContext.Session.SetInt32(SessionKeys.SelectedMusteriId, musteri.MusteriId);
+            HttpContext.Session.SetString(SessionKeys.SelectedMusteriName, $"{musteri.Ad} {musteri.Soyad}");
+
+            TempData["Success"] = $"Seçili müşteri: {musteri.Ad} {musteri.Soyad} ✅";
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
+            return RedirectToAction("Index", "Urunler");
+        }
+
+        // (opsiyonel)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ClearSelection()
@@ -116,11 +150,8 @@ namespace MiniMarketCRM.Web.Controllers
             }
 
             TempData["Success"] = "Müşteri eklendi ✅";
-
-            // müşteri eklendikten sonra müşteri seç ekranına dön
             return RedirectToAction("Select");
         }
-
 
         // EDIT (GET)
         public async Task<IActionResult> Edit(int id)

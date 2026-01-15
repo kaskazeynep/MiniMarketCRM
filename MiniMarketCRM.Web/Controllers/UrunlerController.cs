@@ -19,11 +19,15 @@ namespace MiniMarketCRM.Web.Controllers
         {
             var client = _httpClientFactory.CreateClient("ApiClient");
 
-            var urunler = await client.GetFromJsonAsync<List<UrunDTO>>("api/urunler")
-                         ?? new List<UrunDTO>();
+            var urunler = await client.GetFromJsonAsync<List<UrunDTO>>("/api/urunler")
+                          ?? new List<UrunDTO>();
+
+            // seçili müşteri varsa ViewBag
+            ViewBag.SelectedMusteriId = HttpContext.Session.GetInt32("SelectedMusteriId");
 
             return View(urunler);
         }
+
 
         // CREATE (GET)
         public async Task<IActionResult> Create()

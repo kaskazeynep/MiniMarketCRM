@@ -6,6 +6,9 @@
 @{
     var musteriId = HttpContextAccessor.HttpContext?.Session.GetInt32("SelectedMusteriId");
     var musteriSecili = musteriId != null;
+
+    // Select sayfasından geri dönebilmek için
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
 <h2>Ürünler</h2>
@@ -22,24 +25,32 @@
 <div class="mb-3 d-flex gap-2 flex-wrap">
     <a class="btn btn-outline-secondary"
        asp-controller="Musteriler"
-       asp-action="Select">
+       asp-action="Select"
+       asp-route-returnUrl="@returnUrl">
         @(musteriSecili ? "Müşteri Değiştir" : "Müşteri Seç")
-    </a>
-
-    <a class="btn btn-success"
-       asp-controller="Sepet"
-       asp-action="Index">
-        Sepete Git
     </a>
 
     @if (musteriSecili)
     {
+        <a class="btn btn-success"
+           asp-controller="Sepet"
+           asp-action="Index">
+            Sepete Git
+        </a>
+
         <span class="badge bg-success-subtle text-success border border-success align-self-center px-3 py-2">
             Seçili MüşteriId: @musteriId
         </span>
     }
     else
     {
+        <a class="btn btn-success"
+           asp-controller="Musteriler"
+           asp-action="Select"
+           asp-route-returnUrl="@returnUrl">
+            Sepete Git
+        </a>
+
         <span class="badge bg-warning-subtle text-warning border border-warning align-self-center px-3 py-2">
             Müşteri seçilmedi — Sepete eklemek için seçmelisin
         </span>
@@ -54,7 +65,7 @@
             <th>Fiyat</th>
             <th>Stok</th>
             <th>Aktif</th>
-            <th style="width:320px;">Sepet</th>
+            <th style="width:340px;">Sepet</th>
         </tr>
     </thead>
     <tbody>
@@ -71,7 +82,8 @@
                     {
                         <a class="btn btn-sm btn-outline-danger"
                            asp-controller="Musteriler"
-                           asp-action="Select">
+                           asp-action="Select"
+                           asp-route-returnUrl="@returnUrl">
                             Sepete eklemek için müşteri seç
                         </a>
                     }

@@ -1,0 +1,77 @@
+﻿@model MiniMarketCRM.Application.DTO.SiparisRaporDTO
+
+@{
+    ViewData["Title"] = "Sipariş Detay";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <div>
+            <h2 class="mb-1">🧾 Sipariş Detay</h2>
+            <div class="text-muted small">Sipariş #@Model.SiparisId</div>
+        </div>
+
+        <a class="btn btn-outline-secondary rounded-pill px-3" asp-action="Satis">
+            ← Rapor’a Dön
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="text-muted small">Müşteri</div>
+                    <div class="fw-semibold">@Model.MusteriAdSoyad</div>
+                    <div class="text-muted small">@Model.MusteriEmail</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small">Tarih</div>
+                    <div class="fw-semibold">@Model.SiparisTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="text-muted small">Toplam</div>
+                    <div class="fs-4 fw-bold">@Model.ToplamTutar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body">
+            <h5 class="mb-3">Ürün Kalemleri</h5>
+
+            @if (!Model.Kalemler.Any())
+            {
+                <div class="alert alert-warning rounded-4">Kalem bulunamadı.</div>
+                return;
+            }
+
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ürün</th>
+                            <th style="width:120px;">Adet</th>
+                            <th style="width:160px;">Birim Fiyat</th>
+                            <th style="width:160px;">Satır Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var k in Model.Kalemler)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@k.UrunAdi</td>
+                                <td>@k.Adet</td>
+                                <td>@k.BirimFiyat</td>
+                                <td class="fw-semibold">@k.SatirToplam</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>

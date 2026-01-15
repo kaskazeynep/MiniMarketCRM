@@ -1,14 +1,47 @@
 ﻿@model List<MiniMarketCRM.Application.DTO.MusteriDTO>
 
+@{
+    var returnUrl = (string?)ViewBag.ReturnUrl ?? Url.Action("Index", "Urunler");
+}
+
 <h2>Müşteri Seç</h2>
 
-<div class="mb-3 d-flex gap-2">
-    <a class="btn btn-outline-secondary" asp-controller="Musteriler" asp-action="Index"> Müşteri Listesi</a>
-    <a class="btn btn-success" asp-controller="Musteriler" asp-action="Create"> + Yeni Müşteri Ekle </a>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary"
+       asp-controller="Musteriler"
+       asp-action="Index">
+        Müşteri Listesi
+    </a>
+
+    <a class="btn btn-success"
+       asp-controller="Musteriler"
+       asp-action="Create"
+       asp-route-returnUrl="@returnUrl">
+        + Yeni Müşteri Ekle
+    </a>
+
+    <form asp-action="ClearSelection" method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@returnUrl" />
+        <button class="btn btn-outline-danger" type="submit">
+            Seçimi Temizle
+        </button>
+    </form>
 </div>
 
-<form asp-action="Select" method="post">
+<form asp-action="Select" method="post" class="border rounded-4 p-3 bg-white shadow-sm">
     @Html.AntiForgeryToken()
+
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
 
     <div class="mb-3">
         <label class="form-label">Müşteri</label>
