@@ -1,0 +1,43 @@
+name: tests-and-coverage
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test + Coverage (cobertura)
+        run: |
+          dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate HTML report
+        run: |
+          reportgenerator \
+            -reports:"./TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"./coverage-report" \
+            -reporttypes:"Html;Cobertura"
+
+      - name: Upload coverage report (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report
