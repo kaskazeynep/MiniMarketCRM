@@ -26,6 +26,17 @@ jobs:
         run: |
           dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
+      # ✅ Codecov upload (cobertura xml)
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./TestResults/**/coverage.cobertura.xml
+          flags: unittests
+          name: MiniMarketCRM
+          fail_ci_if_error: true
+          verbose: true
+
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
 
