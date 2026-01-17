@@ -27,10 +27,13 @@ jobs:
           dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
       - name: Install ReportGenerator
-        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      # ✅ Burada hem HTML rapor hem de Codecov’a yollayacağımız filtreli Cobertura.xml üretilecek
+      # Filtreli HTML + TextSummary + Cobertura.xml üret
       - name: Generate coverage report (Application focused)
+        shell: bash
         run: |
           reportgenerator \
             -reports:"./TestResults/**/coverage.cobertura.xml" \
@@ -40,14 +43,20 @@ jobs:
             -classfilters:"-*Migrations*;-*Program*;-*DTO*" \
             -filefilters:"-**/*Migrations/*;-**/*Program.cs"
 
-      # ✅ Codecov upload: Tek dosya, filtreli Cobertura
+          echo "---- coverage-report contents ----"
+          ls -la ./coverage-report
+          echo "---- Cobertura exists? ----"
+          test -f ./coverage-report/Cobertura.xml && echo "Cobertura.xml OK" || (echo "Cobertura.xml MISSING" && exit 1)
+
+      # Codecov: sadece TEK dosyayı yükle, search kapalı
       - name: Upload coverage to Codecov (Application)
         uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}   # Public repo ise bazen boş kalsa da olur; sende dursun
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage-report/Cobertura.xml
           flags: application
           name: MiniMarketCRM-Application
+          disable_search: true
           fail_ci_if_error: true
           verbose: true
 
