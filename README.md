@@ -1,6 +1,6 @@
 # MiniMarketCRM
 
-![tests-and-coverage](https://github.com/kaskazeynep/MiniMarketCRM/actions/workflows/main.yml/badge.svg?branch=master)
+![tests-and-coverage](https://github.com/kaskazeynep/MiniMarketCRM/actions/workflows/test-and-coverage.yml/badge.svg?branch=master)
 
 
 
