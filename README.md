@@ -1,7 +1,8 @@
 # MiniMarketCRM
 
 ![tests-and-coverage](https://github.com/kaskazeynep/MiniMarketCRM/actions/workflows/main.yml/badge.svg?branch=master)
-[![codecov](https://codecov.io/github/kaskazeynep/MiniMarketCRM/graph/badge.svg?flag=application&branch=master)](https://codecov.io/github/kaskazeynep/MiniMarketCRM)
+[![codecov](https://codecov.io/github/kaskazeynep/MiniMarketCRM/graph/badge.svg?flag=application&branch=master&v=3)](https://app.codecov.io/github/kaskazeynep/MiniMarketCRM)
+
 
 
 ## 📌 Proje Tanımı
