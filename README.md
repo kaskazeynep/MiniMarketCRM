@@ -15,6 +15,7 @@ Sistem aşağıdaki temel fonksiyonları kapsamaktadır:
 - Sipariş oluşturma ve sipariş yaşam döngüsü yönetimi
 - Raporlama ve dashboard özetleri
 
+
 ---
 
 ## 🧱 Mimari Yapı
