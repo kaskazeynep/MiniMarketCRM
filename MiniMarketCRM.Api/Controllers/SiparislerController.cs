@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniMarketCRM.Application.DTO;
 using MiniMarketCRM.Application.Interfaces;
+using MiniMarketCRM.Domain.Enums;
 
 namespace MiniMarketCRM.Api.Controllers
 {
@@ -92,5 +93,16 @@ namespace MiniMarketCRM.Api.Controllers
             return item is null ? NotFound() : Ok(item);
         }
 
+
+        [HttpPatch("{id:int}/durum")]
+        public async Task<IActionResult> PatchDurum(int id, [FromBody] SiparisDurumPatchDTO dto)
+        {
+            // invalid enum gelirse 400 dönsün (negatif senaryo testi var)
+            if (!Enum.IsDefined(typeof(SiparisDurum), dto.Durum))
+                return BadRequest("Geçersiz sipariş durumu.");
+
+            var updated = await _service.UpdateDurumAsync(id, dto.Durum);
+            return updated is null ? NotFound() : Ok(updated);
+        }
     }
 }

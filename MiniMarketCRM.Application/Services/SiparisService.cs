@@ -3,6 +3,7 @@ using MiniMarketCRM.Application.DTO;
 using MiniMarketCRM.Application.Interfaces;
 using MiniMarketCRM.DataAccess.Context;
 using MiniMarketCRM.Domain.Entities;
+using MiniMarketCRM.Domain.Enums;
 
 namespace MiniMarketCRM.Application.Services
 {
@@ -195,6 +196,30 @@ namespace MiniMarketCRM.Application.Services
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<SiparisDTO?> UpdateDurumAsync(int id, SiparisDurum durum)
+        {
+            var entity = await _db.Siparisler.FirstOrDefaultAsync(x => x.SiparisId == id);
+            if (entity == null) return null;
+
+            entity.Durum = durum;
+
+            // (opsiyonel ama güvenli) toplamı tekrar hesapla:
+            entity.ToplamTutar = await _db.SiparisKalemleri
+                .Where(k => k.SiparisId == id)
+                .SumAsync(k => (decimal?)k.SatirToplam) ?? entity.ToplamTutar;
+
+            await _db.SaveChangesAsync();
+
+            return new SiparisDTO
+            {
+                SiparisId = entity.SiparisId,
+                MusteriId = entity.MusteriId,
+                SiparisTarihi = entity.SiparisTarihi,
+                ToplamTutar = entity.ToplamTutar,
+                Durum = entity.Durum
+            };
         }
 
     }

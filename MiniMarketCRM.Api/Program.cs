@@ -8,7 +8,7 @@ using MiniMarketCRM.Application.Services;
 
 namespace MiniMarketCRM.Api
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
@@ -17,6 +17,7 @@ namespace MiniMarketCRM.Api
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             builder.Services.AddScoped<IKategoriService, KategoriService>();
             builder.Services.AddScoped<IUrunService, UrunService>();
             builder.Services.AddScoped<IMusteriService, MusteriService>();
@@ -25,10 +26,13 @@ namespace MiniMarketCRM.Api
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<ISiparisRaporService, SiparisRaporService>();
 
-
-
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // KRÝTÝK NOKTA
+            if (!builder.Environment.IsEnvironment("Testing"))
+            {
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseSqlServer(
+                        builder.Configuration.GetConnectionString("DefaultConnection")));
+            }
 
             var app = builder.Build();
 
