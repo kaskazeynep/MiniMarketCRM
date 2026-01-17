@@ -24,18 +24,14 @@ jobs:
 
       - name: Test + Coverage (cobertura)
         run: |
-          dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+          dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test_results.trx"
 
-      # ✅ Codecov upload (cobertura xml)
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./TestResults/**/coverage.cobertura.xml
-          flags: unittests
-          name: MiniMarketCRM
-          fail_ci_if_error: true
-          verbose: true
+      - name: List test results + coverage files
+        run: |
+          echo "=== TRX files ==="
+          find ./TestResults -name "*.trx" -print
+          echo "=== Cobertura files ==="
+          find ./TestResults -name "coverage.cobertura.xml" -print
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -45,7 +41,7 @@ jobs:
           reportgenerator \
             -reports:"./TestResults/**/coverage.cobertura.xml" \
             -targetdir:"./coverage-report" \
-            -reporttypes:"Html;TextSummary" \
+            -reporttypes:"Html;TextSummary;Cobertura" \
             -assemblyfilters:"+MiniMarketCRM.Application*" \
             -classfilters:"-*Migrations*;-*Program*;-*DTO*" \
             -filefilters:"-**/*Migrations/*;-**/*Program.cs"
@@ -55,3 +51,12 @@ jobs:
         with:
           name: coverage-report
           path: coverage-report
+
+      # ✅ Codecov'a "filtrelenmiş" Cobertura raporu
+      - name: Upload coverage to Codecov (Application)
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage-report/Cobertura.xml
+          flags: application
+          name: MiniMarketCRM-Application
+          fail_ci_if_error: false
