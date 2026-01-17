@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniMarketCRM.Application",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniMarketCRM.Web", "MiniMarketCRM.Web\MiniMarketCRM.Web.csproj", "{A75A2DDB-B41B-4BC7-B9CE-89842B3E033F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniMarketCRM.Api.IntegrationTests", "MiniMarketCRM.Api.IntegrationTests\MiniMarketCRM.Api.IntegrationTests.csproj", "{9B44574A-BAFE-4533-B6F4-B13E5AA29F8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniMarketCRM.Application.UnitTests", "MiniMarketCRM.Application.UnitTests\MiniMarketCRM.Application.UnitTests.csproj", "{FE9A4F39-3307-457E-9A57-2E85A6933927}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniMarketCRM.Api.SystemTests", "MiniMarketCRM.Api.SystemTests\MiniMarketCRM.Api.SystemTests.csproj", "{0472EFB7-DB9D-4D41-9EE2-D5E6E388B3DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +45,18 @@ Global
 		{A75A2DDB-B41B-4BC7-B9CE-89842B3E033F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A75A2DDB-B41B-4BC7-B9CE-89842B3E033F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A75A2DDB-B41B-4BC7-B9CE-89842B3E033F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B44574A-BAFE-4533-B6F4-B13E5AA29F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B44574A-BAFE-4533-B6F4-B13E5AA29F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B44574A-BAFE-4533-B6F4-B13E5AA29F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B44574A-BAFE-4533-B6F4-B13E5AA29F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE9A4F39-3307-457E-9A57-2E85A6933927}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE9A4F39-3307-457E-9A57-2E85A6933927}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE9A4F39-3307-457E-9A57-2E85A6933927}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE9A4F39-3307-457E-9A57-2E85A6933927}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0472EFB7-DB9D-4D41-9EE2-D5E6E388B3DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0472EFB7-DB9D-4D41-9EE2-D5E6E388B3DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0472EFB7-DB9D-4D41-9EE2-D5E6E388B3DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0472EFB7-DB9D-4D41-9EE2-D5E6E388B3DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

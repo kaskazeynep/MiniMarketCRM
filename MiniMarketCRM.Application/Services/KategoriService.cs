@@ -84,7 +84,6 @@ namespace MiniMarketCRM.Application.Services
             if (entity is null) return false;
 
             _db.Kategoriler.Remove(entity);
-            // bu kategoriye bağlı ürün varsa burada patlar controller’da düzgün mesajla dönerim.
             await _db.SaveChangesAsync();
             return true;
         }
